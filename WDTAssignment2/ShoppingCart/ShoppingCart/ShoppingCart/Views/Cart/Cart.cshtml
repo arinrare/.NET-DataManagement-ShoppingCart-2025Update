@@ -1,0 +1,84 @@
+﻿@using ShoppingCart.Models
+@model Dictionary<Product, int>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Cart";
+}
+
+@{
+    decimal totalCost = 0;
+}
+
+<h2>Shopping Cart</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            Image
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            Price
+        </th>
+        <th>
+            Quantity
+        </th>
+        <th>
+            Sub Total
+        </th>
+    </tr>
+
+    @foreach (KeyValuePair<Product, int> item in ((Dictionary<Product, int>)Session["cart"]))
+    {
+        <tr>
+            <td>
+                <img class="productImage" src="@item.Key.ImageUrl" />
+            </td>
+            <td>
+                @item.Key.Title
+            </td>
+            <td>
+                @item.Key.ShortDescription
+            </td>
+            <td>
+                @String.Format("{0:c}", item.Key.Price)
+            </td>
+            <td>
+                @item.Value
+            </td>
+            <td>
+                @String.Format("{0:c}", (item.Key.Price * @item.Value))
+            </td>
+        </tr>
+        
+        totalCost += (item.Key.Price * item.Value);
+    }
+
+    <tr>
+        <th colspan="5">
+            Total Price: 
+        </th>
+        <td>
+            @String.Format("{0:c}", totalCost)
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            @Html.ActionLink("Reset Cart", "Reset")
+        </td>
+        <td>
+            @Html.ActionLink("Checkout", "../Checkout")
+        </td>
+    </tr>
+
+</table>

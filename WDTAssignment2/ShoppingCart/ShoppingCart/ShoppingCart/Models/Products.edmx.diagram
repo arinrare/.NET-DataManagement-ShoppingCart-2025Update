@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="5ec56d9954164704bf58dc69f3935aca" Name="Diagram1">
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.Category" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.Customer" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.Order_Products" Width="1.5" PointX="5.25" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.Order" Width="1.5" PointX="3" PointY="5.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.Product" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="ShoppingCartProductsModel.User" Width="1.5" PointX="1.5" PointY="9.375" IsExpanded="true" />
+        <AssociationConnector Association="ShoppingCartProductsModel.FK__Product__Categor__1273C1CD" ManuallyRouted="false" />
+        <AssociationConnector Association="ShoppingCartProductsModel.FK_Customer_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="ShoppingCartProductsModel.FK_Orders_Customer" ManuallyRouted="false" />
+        <AssociationConnector Association="ShoppingCartProductsModel.FK_Order_Products_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="ShoppingCartProductsModel.FK_Order_Products_Product" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,0 +1,43 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+*/bin/
+*/obj/
+
+# NuGet
+packages/
+*.nupkg
+.nuget/
+
+# Visual Studio publish
+PublishProfiles/
+*.Publish.xml
+*.pubxml
+*.publishproj
+
+# Rider/IDE
+.idea/
+*.sublime-workspace
+.vscode/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Temporary / logs
+*.log
+*.tmp
+*.cache
+Thumbs.db
+Desktop.ini
+
+# OS
+.DS_Store
+ehthumbs.db
