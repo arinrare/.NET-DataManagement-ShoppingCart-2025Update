@@ -91,6 +91,7 @@
       <LastGenOutput>Model1.cs</LastGenOutput>
     </Content>
     <None Include="packages.config" />
+    <Content Include="README.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
