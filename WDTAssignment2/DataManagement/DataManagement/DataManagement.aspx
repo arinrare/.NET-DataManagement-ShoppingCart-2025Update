@@ -15,7 +15,9 @@
    <form id="form1" runat="server">
       <div>
          <%--  Insert a dropdown list populated with a data source from the database --%>
-         <asp:DropDownList ID="DropDownList1" runat="server" DataSourceID="SqlDataSource2" DataTextField="Title" DataValueField="CategoryID" AutoPostBack="True"></asp:DropDownList>
+         <asp:DropDownList ID="DropDownList1" runat="server" DataSourceID="SqlDataSource2" DataTextField="Title" DataValueField="CategoryID" AutoPostBack="True" AppendDataBoundItems="True">
+             <asp:ListItem Text="All" Value="0" />
+         </asp:DropDownList>
          <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" />
          &nbsp;&nbsp;&nbsp;
          <asp:Button ID="btnDelete" runat="server" OnClick="btnDelete_Click" Text="Delete" />
@@ -55,7 +57,7 @@
                      <asp:Label ID="lblLongDescription" runat="server" Text='<%# Eval("LongDescription") %>'></asp:Label>
                   </ItemTemplate>
                   <EditItemTemplate>
-                     <asp:TextBox ID="txtLongDescription" runat="server" Text='<%# Eval("LongDescription") %>'></asp:TextBox>
+                     <asp:TextBox ID="txtLongDescription" runat="server" Text='<%# Eval("LongDescription") %>' TextMode="MultiLine" Rows="4"></asp:TextBox>
                   </EditItemTemplate>
                </asp:TemplateField>
                <asp:TemplateField HeaderText="Image URL" ItemStyle-Width="260">
@@ -102,7 +104,7 @@
                   <asp:TextBox ID="txtShortDescription" runat="server" Width="150" />
                </td>
                <td class="auto-style1">Long Description<br />
-                  <asp:TextBox ID="txtLongDescription" runat="server" Width="150" />
+                  <asp:TextBox ID="txtLongDescription" runat="server" Width="150" TextMode="MultiLine" Rows="4" />
                </td>
                <td class="auto-style1">Image URL<br />
                   <asp:TextBox ID="txtImageUrl" runat="server" Width="260" />

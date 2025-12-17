@@ -87,10 +87,13 @@ namespace DataManagement
                cmd.CommandType = CommandType.StoredProcedure;
                cmd.Parameters.AddWithValue("@Action", "INSERT");
                cmd.Parameters.AddWithValue("@CategoryId", id);
-               cmd.Parameters.AddWithValue("@Title", title);
-               cmd.Parameters.AddWithValue("@ShortDescription", shortDesc);
-               cmd.Parameters.AddWithValue("@LongDescription", longDesc);
-               cmd.Parameters.AddWithValue("@ImageUrl", imageUrl);
+               cmd.Parameters.AddWithValue("@Title", (object)title ?? DBNull.Value);
+               cmd.Parameters.AddWithValue("@ShortDescription", (object)shortDesc ?? DBNull.Value);
+               // Use NVARCHAR(MAX) for LongDescription to avoid truncation
+               SqlParameter pLong = new SqlParameter("@LongDescription", SqlDbType.NVarChar, -1);
+               pLong.Value = (object)longDesc ?? DBNull.Value;
+               cmd.Parameters.Add(pLong);
+               cmd.Parameters.AddWithValue("@ImageUrl", (object)imageUrl ?? DBNull.Value);
                cmd.Parameters.AddWithValue("@Price", price);
                cmd.Connection = con;
                con.Open();
@@ -120,7 +123,16 @@ namespace DataManagement
          GridViewRow row = GridView1.Rows[e.RowIndex];
          int productId = Convert.ToInt32(GridView1.DataKeys[e.RowIndex]
             .Values[0]);
-         int categoryId = Convert.ToInt32(DropDownList1.SelectedValue);
+
+         // Read category id from the editing row (not the outer DropDownList)
+         string categoryText = (row.FindControl("txtCategoryId") as TextBox)?.Text;
+         int categoryId;
+         if (!int.TryParse(categoryText, out categoryId) || categoryId <= 0)
+         {
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Invalid Category ID. Update cancelled.');", true);
+            return;
+         }
+
          string title = (row.FindControl("txtTitle") as TextBox).Text;
          string shortDescription = (row.FindControl("txtShortDescription") 
             as TextBox).Text;
@@ -129,11 +141,23 @@ namespace DataManagement
          string imageUrl = (row.FindControl("txtImageUrl") as TextBox).Text;
          string price = (row.FindControl("txtPrice") as TextBox).Text;
 
-         /* Create connections and pass edited information into the SPROC
-            for inserting into the database*/
+         /* Validate category exists and then update */
          using (SqlConnection con = new SqlConnection(ConnectionString))
          {
-            using (SqlCommand cmd = new SqlCommand("ProductsSPROC"))
+            con.Open();
+            using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(1) FROM [Category] WHERE CategoryID = @id", con))
+            {
+               checkCmd.Parameters.AddWithValue("@id", categoryId);
+               int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+               if (exists == 0)
+               {
+                  Page.ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Category does not exist. Update cancelled.');", true);
+                  con.Close();
+                  return;
+               }
+            }
+
+            using (SqlCommand cmd = new SqlCommand("ProductsSPROC", con))
             {
                cmd.CommandType = CommandType.StoredProcedure;
                cmd.Parameters.AddWithValue("@Action", "UPDATE");
@@ -142,15 +166,15 @@ namespace DataManagement
                cmd.Parameters.AddWithValue("@Title", title);
                cmd.Parameters.AddWithValue("@ShortDescription", 
                   shortDescription);
-               cmd.Parameters.AddWithValue("@LongDescription", 
-                  longDescription);
+               // Use NVARCHAR(MAX) for LongDescription to avoid truncation on update
+               SqlParameter pLong = new SqlParameter("@LongDescription", SqlDbType.NVarChar, -1);
+               pLong.Value = (object)longDescription ?? DBNull.Value;
+               cmd.Parameters.Add(pLong);
                cmd.Parameters.AddWithValue("@ImageUrl", imageUrl);
                cmd.Parameters.AddWithValue("@Price", price);
-               cmd.Connection = con;
-               con.Open();
                cmd.ExecuteNonQuery();
-               con.Close();
             }
+            con.Close();
          }
          /* Stop editing the index and re-form the view in the category
             view*/
@@ -225,23 +249,29 @@ namespace DataManagement
          /* Create connections and call the SPROC to refresh the database*/
          using (SqlConnection con = new SqlConnection(ConnectionString))
          {
-            /* Create and declare command parameters and call relevant SPROC, 
-               passing in parameter*/
-            con.Open();
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "ProductsSPROC";
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Action", sprocParameter);
-            cmd.Parameters.AddWithValue("@CategoryID", id);
-            SqlDataAdapter sda = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
+             /* If category id is 0 and caller asked for category view, fall back to full SELECT */
+             if (id == 0 && string.Equals(sprocParameter, "SELECT-CATEGORY", StringComparison.OrdinalIgnoreCase))
+             {
+                sprocParameter = "SELECT";
+             }
 
-            /* Re-form the grid and complete*/
-            sda.Fill(dt);
-            GridView1.DataSource = dt;
-            GridView1.DataBind();
-            con.Close();
-         }
-      }
-   }
-}
+             /* Create and declare command parameters and call relevant SPROC, 
+                passing in parameter*/
+             con.Open();
+             SqlCommand cmd = con.CreateCommand();
+             cmd.CommandText = "ProductsSPROC";
+             cmd.CommandType = CommandType.StoredProcedure;
+             cmd.Parameters.AddWithValue("@Action", sprocParameter);
+             cmd.Parameters.AddWithValue("@CategoryID", id);
+             SqlDataAdapter sda = new SqlDataAdapter(cmd);
+             DataTable dt = new DataTable();
+
+             /* Re-form the grid and complete*/
+             sda.Fill(dt);
+             GridView1.DataSource = dt;
+             GridView1.DataBind();
+             con.Close();
+          }
+       }
+    }
+ }
